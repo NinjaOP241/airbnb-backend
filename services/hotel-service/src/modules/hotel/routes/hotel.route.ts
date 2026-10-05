@@ -6,7 +6,11 @@ import {
   createHotelSchema,
   updateHotelSchema,
 } from "../schemas/hotel.schema.js";
-import { validateRequestBody } from "../../../shared/middlewares/validate.js";
+import {
+  validateRequestBody,
+  validateRouteParams,
+} from "../../../shared/middlewares/validate.js";
+import { idParamSchema } from "../../../shared/schemas/common.schema.js";
 
 const hotelRepository = new HotelRepository();
 const hotelService = new HotelService(hotelRepository);
@@ -16,7 +20,11 @@ const hotelRouter: Router = Router();
 
 hotelRouter.get("/", hotelController.getAllHotels);
 
-hotelRouter.get("/:id", hotelController.getHotelById);
+hotelRouter.get(
+  "/:id",
+  validateRouteParams(idParamSchema),
+  hotelController.getHotelById,
+);
 
 hotelRouter.post(
   "/",
@@ -26,10 +34,15 @@ hotelRouter.post(
 
 hotelRouter.patch(
   "/:id",
+  validateRouteParams(idParamSchema),
   validateRequestBody(updateHotelSchema),
   hotelController.updateHotel,
 );
 
-hotelRouter.delete("/:id", hotelController.deleteHotel);
+hotelRouter.delete(
+  "/:id",
+  validateRouteParams(idParamSchema),
+  hotelController.deleteHotel,
+);
 
 export default hotelRouter;

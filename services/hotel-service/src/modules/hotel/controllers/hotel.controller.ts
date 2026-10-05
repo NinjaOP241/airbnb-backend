@@ -1,6 +1,8 @@
 import type { Request, Response } from "express";
+import { z } from "zod";
 import type { IHotelService } from "../services/hotel.service.interface.js";
 import { sendSuccess } from "../../../shared/utils/api-response.js";
+import { idParamSchema } from "../../../shared/schemas/common.schema.js";
 
 export class HotelController {
   constructor(private readonly hotelService: IHotelService) {
@@ -12,8 +14,8 @@ export class HotelController {
   }
 
   async getHotelById(req: Request, res: Response): Promise<void> {
-    const { id } = req.params;
-    const hotel = await this.hotelService.getHotelById(Number(id));
+    const { id } = req.validatedParams as z.infer<typeof idParamSchema>;
+    const hotel = await this.hotelService.getHotelById(id);
     sendSuccess(res, hotel);
   }
 
@@ -29,15 +31,15 @@ export class HotelController {
   }
 
   async updateHotel(req: Request, res: Response): Promise<void> {
-    const { id } = req.params;
+    const { id } = req.validatedParams as z.infer<typeof idParamSchema>;
     const data = req.body;
-    const hotel = await this.hotelService.updateHotel(Number(id), data);
+    const hotel = await this.hotelService.updateHotel(id, data);
     sendSuccess(res, hotel, 200, "Hotel updated successfully");
   }
 
   async deleteHotel(req: Request, res: Response): Promise<void> {
-    const { id } = req.params;
-    await this.hotelService.deleteHotel(Number(id));
+    const { id } = req.validatedParams as z.infer<typeof idParamSchema>;
+    await this.hotelService.deleteHotel(id);
     sendSuccess(res, null, 200, "Hotel deleted successfully");
   }
 }
