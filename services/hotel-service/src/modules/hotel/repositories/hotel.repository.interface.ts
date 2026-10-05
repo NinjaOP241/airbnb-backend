@@ -5,4 +5,6 @@ export interface IHotelRepository extends IBaseRepository<
   Hotel,
   Prisma.HotelCreateInput,
   Prisma.HotelUpdateInput
-> {}
+> {
+  softDelete(id: number): Promise<boolean>;
+}

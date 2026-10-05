@@ -46,7 +46,7 @@ export class HotelService implements IHotelService {
   }
 
   async deleteHotel(id: number): Promise<void> {
-    const deleted = await this.hotelRepository.delete(id);
+    const deleted = await this.hotelRepository.softDelete(id);
 
     if (!deleted) {
       throw notFound(`Hotel with id ${id} not found`);
