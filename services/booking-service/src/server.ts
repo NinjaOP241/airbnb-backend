@@ -1,16 +1,44 @@
 import { createApp } from "./app.js";
+import {
+  connectToDatabase,
+  disconnectDatabase,
+} from "./shared/database/prisma.js";
 import { env } from "./shared/config/env.js";
+import logger from "./shared/logger/logger.js";
 
 const app = createApp();
 
-export async function startServer() {
-  app.listen(env.PORT, () => {
-    console.log(`[server]: Running on port ${env.PORT}`);
-  });
+async function startServer(): Promise<void> {
+  try {
+    await connectToDatabase();
+
+    const server = app.listen(env.PORT, () => {
+      logger.info(`Server is running on port ${env.PORT}`);
+    });
+
+    server.on("error", async (error) => {
+      await handleStartupFailure("Failed to start server", error);
+    });
+  } catch (error) {
+    await handleStartupFailure("Application startup failed", error);
+  }
 }
 
-startServer().catch((err) => {
-  // app.listen can throw an error if the port is already in use
-  console.error("[server]: Failed to start", err);
+async function handleStartupFailure(
+  message: string,
+  error: unknown,
+): Promise<void> {
+  logger.error(message, { error });
+
+  try {
+    await disconnectDatabase();
+  } catch (disconnectError) {
+    logger.error("Failed to disconnect from database", {
+      error: disconnectError,
+    });
+  }
+
   process.exit(1); // Exit the process with an error code
-});
+}
+
+startServer();
