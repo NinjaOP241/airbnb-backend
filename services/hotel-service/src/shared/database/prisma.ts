@@ -9,14 +9,12 @@ const adapter = new PrismaPg({
 
 export const prisma = new PrismaClient({ adapter });
 
-export async function connectToDatabase() {
-  try {
-    await prisma.$connect();
-    logger.info("Database connected successfully");
-  } catch (err) {
-    logger.error("Database connection failed", {
-      error: err,
-    });
-    process.exit(1); // Exit the process with an error code
-  }
+export async function connectToDatabase(): Promise<void> {
+  await prisma.$connect();
+  logger.info("Database connected successfully");
+}
+
+export async function disconnectDatabase(): Promise<void> {
+  await prisma.$disconnect();
+  logger.info("Database disconnected successfully");
 }
